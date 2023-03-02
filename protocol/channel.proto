@@ -1,0 +1,3 @@
+message Channel {
+  required string name = 1;
+}
