@@ -1,7 +1,7 @@
-import {IChannelArgs, ICreateChannelArgs,} from '../types/channel.types';
+import { IChannelArgs, ICreateChannelArgs } from '../types/channel.types';
 
-import {Rpc, TwirpRpc} from '../common/TwirpRPC';
-import {RPCPackages} from "../common/const/RPCPackages";
+import { Rpc, TwirpRpc } from '../common/TwirpRPC';
+import { RPCPackages } from '../common/const/RPCPackages';
 
 export class ChannelClient {
     private readonly rpc: Rpc;
@@ -9,7 +9,7 @@ export class ChannelClient {
     constructor ({
         apiHost,
         apiKey,
-        secretKey
+        secretKey,
     }:IChannelArgs) {
         this.rpc = new TwirpRpc({
             host: apiHost,
@@ -19,7 +19,7 @@ export class ChannelClient {
 
     public async createChannel({
         identification,
-        maxParticipants
+        maxParticipants,
     }:ICreateChannelArgs) {
 
     }

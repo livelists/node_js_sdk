@@ -4,7 +4,8 @@
   "description": "node.js server sdk for livelists",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,7 @@
     "eslint-plugin-import": "2.23.4",
     "ts-node": "9.1.1",
     "ts-proto": "1.131.0",
+    "ts-loader": "9.4.1",
     "typescript": "4.8.3"
   },
   "dependencies": {
