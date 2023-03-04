@@ -1,3 +1,15 @@
+export interface IChannelArgs {
+    apiHost: string,
+    apiKey: string,
+    secretKey: string,
+}
+
+export interface ICreateChannelArgs {
+    identification: string,
+    maxParticipants: number,
+}
+
+
 export interface ICreateChannel {
     url: string,
 }
