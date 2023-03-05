@@ -8,7 +8,7 @@ import {
     ITwirpArgs,
     IReqArgs,
 } from '../types/twirp.types';
-import { RPCPackages } from "./const/RPCPackages";
+import { RPCPackages } from './const/RPCPackages';
 
 export interface Rpc {
     request(data:IReqArgs): Promise<string>;
@@ -35,7 +35,9 @@ export class TwirpRpc {
         });
     }
 
-    request({ service, method, data, headers }:IReqArgs): Promise<string> {
+    request({
+        service, method, data, headers,
+    }:IReqArgs): Promise<string> {
         return new Promise<any>((resolve, reject) => {
             const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
             this.instance
