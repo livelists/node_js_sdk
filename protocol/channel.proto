@@ -9,14 +9,18 @@ enum ChannelStatus {
   Archived = 1;
 }
 
+service ChannelService {
+  rpc CreateChannel(CreateChannelReq) returns (Channel);
+}
+
 message Channel {
-  string name = 1;
+  string identification = 1;
   google.protobuf.Timestamp createdAt = 2;
   int64 maxParticipants = 3;
   ChannelStatus status = 4;
 }
 
-message CreateChannel {
-  string name = 1;
+message CreateChannelReq {
+  string identification = 1;
   int64 maxParticipants = 3;
 }

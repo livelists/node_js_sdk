@@ -2,8 +2,12 @@ import { IChannelArgs, ICreateChannelArgs } from '../types/channel.types';
 
 import { Rpc, TwirpRpc } from '../common/TwirpRPC';
 import { RPCPackages } from '../common/const/RPCPackages';
+import { Channel, CreateChannelReq } from '../proto/channel';
+import BaseService from './BaseService';
 
-export class ChannelClient {
+const svc = 'ChannelService';
+
+export class ChannelClient extends BaseService {
     private readonly rpc: Rpc;
 
     constructor ({
@@ -11,6 +15,8 @@ export class ChannelClient {
         apiKey,
         secretKey,
     }:IChannelArgs) {
+        super(apiKey, secretKey);
+
         this.rpc = new TwirpRpc({
             host: apiHost,
             pkg: RPCPackages.LiveLists,
@@ -20,7 +26,19 @@ export class ChannelClient {
     public async createChannel({
         identification,
         maxParticipants,
-    }:ICreateChannelArgs) {
+    }:ICreateChannelArgs):Promise<Channel> {
+        const req = CreateChannelReq.toJSON({
+            maxParticipants,
+            identification,
+        });
 
+        const data = await this.rpc.request({
+            service: svc,
+            method: 'CreateChannel',
+            data: req,
+            headers: this.rootAuthHeader(),
+        });
+
+        return Channel.fromJSON(data);
     }
 }
