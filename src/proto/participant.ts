@@ -44,9 +44,9 @@ export interface ParticipantCreateRes {
 }
 
 export interface ChannelParticipantGrants {
-  sendMessage: boolean;
-  readMessages: boolean;
-  admin: boolean;
+  sendMessage?: boolean | undefined;
+  readMessages?: boolean | undefined;
+  admin?: boolean | undefined;
 }
 
 export interface Participant {
@@ -136,18 +136,18 @@ export const ParticipantCreateRes = {
 };
 
 function createBaseChannelParticipantGrants(): ChannelParticipantGrants {
-  return { sendMessage: false, readMessages: false, admin: false };
+  return { sendMessage: undefined, readMessages: undefined, admin: undefined };
 }
 
 export const ChannelParticipantGrants = {
   encode(message: ChannelParticipantGrants, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.sendMessage === true) {
+    if (message.sendMessage !== undefined) {
       writer.uint32(8).bool(message.sendMessage);
     }
-    if (message.readMessages === true) {
+    if (message.readMessages !== undefined) {
       writer.uint32(16).bool(message.readMessages);
     }
-    if (message.admin === true) {
+    if (message.admin !== undefined) {
       writer.uint32(24).bool(message.admin);
     }
     return writer;
@@ -179,9 +179,9 @@ export const ChannelParticipantGrants = {
 
   fromJSON(object: any): ChannelParticipantGrants {
     return {
-      sendMessage: isSet(object.sendMessage) ? Boolean(object.sendMessage) : false,
-      readMessages: isSet(object.readMessages) ? Boolean(object.readMessages) : false,
-      admin: isSet(object.admin) ? Boolean(object.admin) : false,
+      sendMessage: isSet(object.sendMessage) ? Boolean(object.sendMessage) : undefined,
+      readMessages: isSet(object.readMessages) ? Boolean(object.readMessages) : undefined,
+      admin: isSet(object.admin) ? Boolean(object.admin) : undefined,
     };
   },
 
@@ -195,9 +195,9 @@ export const ChannelParticipantGrants = {
 
   fromPartial<I extends Exact<DeepPartial<ChannelParticipantGrants>, I>>(object: I): ChannelParticipantGrants {
     const message = createBaseChannelParticipantGrants();
-    message.sendMessage = object.sendMessage ?? false;
-    message.readMessages = object.readMessages ?? false;
-    message.admin = object.admin ?? false;
+    message.sendMessage = object.sendMessage ?? undefined;
+    message.readMessages = object.readMessages ?? undefined;
+    message.admin = object.admin ?? undefined;
     return message;
   },
 };

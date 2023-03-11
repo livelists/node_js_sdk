@@ -10,22 +10,22 @@ enum ParticipantStatus {
 }
 
 service ParticipantService {
-  rpc AddParticipantToChannel(AddParticipantToChannelReq) returns (ParticipantClient);
+  rpc AddParticipantToChannel(AddParticipantToChannelReq) returns (Participant);
 }
 
 message ParticipantCreateRes {
-  ParticipantClient participant = 1;
+  Participant participant = 1;
   string accessToken = 2;
   ChannelParticipantGrants grants = 3;
 }
 
 message ChannelParticipantGrants {
-  bool sendMessage = 1;
-  bool readMessages = 2;
-  bool admin = 3;
+  optional bool sendMessage = 1;
+  optional bool readMessages = 2;
+  optional bool admin = 3;
 }
 
-message ParticipantClient {
+message Participant {
   string identifier = 1;
   google.protobuf.Timestamp createdAt = 2;
   ParticipantStatus status = 3;
