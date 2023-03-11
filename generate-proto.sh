@@ -14,5 +14,5 @@ protoc --plugin="./node_modules/ts-proto/protoc-gen-ts_proto" \
        --ts_proto_out="./src/proto" \
        --ts_proto_opt="${MODEL_OPTS}" \
        -I"./protocol/" \
-       ./protocol/channel.proto
+       ./protocol/channel.proto ./protocol/participant.proto
 

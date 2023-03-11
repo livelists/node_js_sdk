@@ -3,7 +3,7 @@ import Long from "long";
 import _m0 from "protobufjs/minimal";
 import { Timestamp } from "./google/protobuf/timestamp";
 
-export const protobufPackage = "livelists";
+export const protobufPackage = "channel";
 
 export enum ChannelStatus {
   Active = 0,
@@ -39,25 +39,25 @@ export function channelStatusToJSON(object: ChannelStatus): string {
 }
 
 export interface Channel {
-  identification: string;
+  identifier: string;
   createdAt?: Date;
   maxParticipants: number;
   status: ChannelStatus;
 }
 
 export interface CreateChannelReq {
-  identification: string;
+  identifier: string;
   maxParticipants: number;
 }
 
 function createBaseChannel(): Channel {
-  return { identification: "", createdAt: undefined, maxParticipants: 0, status: 0 };
+  return { identifier: "", createdAt: undefined, maxParticipants: 0, status: 0 };
 }
 
 export const Channel = {
   encode(message: Channel, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.identification !== "") {
-      writer.uint32(10).string(message.identification);
+    if (message.identifier !== "") {
+      writer.uint32(10).string(message.identifier);
     }
     if (message.createdAt !== undefined) {
       Timestamp.encode(toTimestamp(message.createdAt), writer.uint32(18).fork()).ldelim();
@@ -79,7 +79,7 @@ export const Channel = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.identification = reader.string();
+          message.identifier = reader.string();
           break;
         case 2:
           message.createdAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
@@ -100,7 +100,7 @@ export const Channel = {
 
   fromJSON(object: any): Channel {
     return {
-      identification: isSet(object.identification) ? String(object.identification) : "",
+      identifier: isSet(object.identifier) ? String(object.identifier) : "",
       createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
       maxParticipants: isSet(object.maxParticipants) ? Number(object.maxParticipants) : 0,
       status: isSet(object.status) ? channelStatusFromJSON(object.status) : 0,
@@ -109,7 +109,7 @@ export const Channel = {
 
   toJSON(message: Channel): unknown {
     const obj: any = {};
-    message.identification !== undefined && (obj.identification = message.identification);
+    message.identifier !== undefined && (obj.identifier = message.identifier);
     message.createdAt !== undefined && (obj.createdAt = message.createdAt.toISOString());
     message.maxParticipants !== undefined && (obj.maxParticipants = Math.round(message.maxParticipants));
     message.status !== undefined && (obj.status = channelStatusToJSON(message.status));
@@ -118,7 +118,7 @@ export const Channel = {
 
   fromPartial<I extends Exact<DeepPartial<Channel>, I>>(object: I): Channel {
     const message = createBaseChannel();
-    message.identification = object.identification ?? "";
+    message.identifier = object.identifier ?? "";
     message.createdAt = object.createdAt ?? undefined;
     message.maxParticipants = object.maxParticipants ?? 0;
     message.status = object.status ?? 0;
@@ -127,13 +127,13 @@ export const Channel = {
 };
 
 function createBaseCreateChannelReq(): CreateChannelReq {
-  return { identification: "", maxParticipants: 0 };
+  return { identifier: "", maxParticipants: 0 };
 }
 
 export const CreateChannelReq = {
   encode(message: CreateChannelReq, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.identification !== "") {
-      writer.uint32(10).string(message.identification);
+    if (message.identifier !== "") {
+      writer.uint32(10).string(message.identifier);
     }
     if (message.maxParticipants !== 0) {
       writer.uint32(24).int64(message.maxParticipants);
@@ -149,7 +149,7 @@ export const CreateChannelReq = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.identification = reader.string();
+          message.identifier = reader.string();
           break;
         case 3:
           message.maxParticipants = longToNumber(reader.int64() as Long);
@@ -164,21 +164,21 @@ export const CreateChannelReq = {
 
   fromJSON(object: any): CreateChannelReq {
     return {
-      identification: isSet(object.identification) ? String(object.identification) : "",
+      identifier: isSet(object.identifier) ? String(object.identifier) : "",
       maxParticipants: isSet(object.maxParticipants) ? Number(object.maxParticipants) : 0,
     };
   },
 
   toJSON(message: CreateChannelReq): unknown {
     const obj: any = {};
-    message.identification !== undefined && (obj.identification = message.identification);
+    message.identifier !== undefined && (obj.identifier = message.identifier);
     message.maxParticipants !== undefined && (obj.maxParticipants = Math.round(message.maxParticipants));
     return obj;
   },
 
   fromPartial<I extends Exact<DeepPartial<CreateChannelReq>, I>>(object: I): CreateChannelReq {
     const message = createBaseCreateChannelReq();
-    message.identification = object.identification ?? "";
+    message.identifier = object.identifier ?? "";
     message.maxParticipants = object.maxParticipants ?? 0;
     return message;
   },

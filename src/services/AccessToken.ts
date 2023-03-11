@@ -14,7 +14,7 @@ export interface AccessTokenOptions {
     ttl?: number | string;
 
     /**
-     * display name for the participant, available as `Participant.name`
+     * display name for the participant, available as `ParticipantClient.name`
      */
     name?: string;
 
@@ -75,7 +75,7 @@ export class AccessToken {
     }
 
     /**
-     * Set metadata to be passed to the Participant, used only when joining the room
+     * Set metadata to be passed to the ParticipantClient, used only when joining the room
      */
     set metadata(md: string) {
         this.grants.metadata = md;
