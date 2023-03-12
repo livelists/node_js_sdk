@@ -20,7 +20,7 @@ export class ChannelClient extends BaseService {
 
         this.rpc = new TwirpRpc({
             host: apiHost,
-            pkg: RPCPackages.LiveLists,
+            pkg: RPCPackages.Channel,
         });
     }
 

@@ -1,3 +1,4 @@
 export enum RPCPackages {
-    LiveLists = 'livelists'
+    Channel = 'channel',
+    Participant = 'participant'
 }
