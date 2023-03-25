@@ -1,9 +1,14 @@
-import { IAddParticipantToChannel } from '../types/participant.types';
+import { IAddParticipantToChannelArgs, IGetAccessTokenArgs } from '../types/participant.types';
 import { IClientArgs } from '../types/common.types';
 
 import { Rpc, TwirpRpc } from '../common/TwirpRPC';
 import { RPCPackages } from '../common/const/RPCPackages';
-import { Participant, AddParticipantToChannelReq } from '../proto/participant';
+import {
+    Participant,
+    AddParticipantToChannelReq,
+    AddParticipantToChannelRes,
+    GetParticipantAccessTokenReq,
+} from '../proto/participant';
 import BaseService from './BaseService';
 
 const svc = 'ParticipantService';
@@ -28,7 +33,7 @@ export class ParticipantClient extends BaseService {
         identifier,
         channelId,
         grants,
-    }:IAddParticipantToChannel):Promise<Participant> {
+    }:IAddParticipantToChannelArgs):Promise<AddParticipantToChannelRes> {
         const req = AddParticipantToChannelReq.toJSON({
             channelId,
             identifier,
@@ -42,6 +47,25 @@ export class ParticipantClient extends BaseService {
             headers: this.rootAuthHeader(),
         });
 
-        return Participant.fromJSON(data);
+        return AddParticipantToChannelRes.fromJSON(data);
+    }
+
+    public async getAccessToken({
+        identifier,
+        channelId,
+    }:IGetAccessTokenArgs):Promise<AddParticipantToChannelRes> {
+        const req = GetParticipantAccessTokenReq.toJSON({
+            identifier,
+            channelId,
+        });
+
+        const data = await this.rpc.request({
+            service: svc,
+            method: 'GetParticipantAccessToken',
+            data: req,
+            headers: this.rootAuthHeader(),
+        });
+
+        return AddParticipantToChannelRes.fromJSON(data);
     }
 }

@@ -7,8 +7,13 @@ export interface IChannelParticipantArgs {
 }
 
 
-export interface IAddParticipantToChannel {
+export interface IAddParticipantToChannelArgs {
     channelId: string,
     identifier: string,
     grants: ChannelParticipantGrants,
+}
+
+export interface IGetAccessTokenArgs {
+    identifier: string,
+    channelId: string,
 }
