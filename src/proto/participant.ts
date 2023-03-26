@@ -37,7 +37,7 @@ export function participantStatusToJSON(object: ParticipantStatus): string {
   }
 }
 
-export interface ParticipantCreateRes {
+export interface AddParticipantToChannelRes {
   participant?: Participant;
   accessToken: string;
   grants?: ChannelParticipantGrants;
@@ -62,12 +62,23 @@ export interface AddParticipantToChannelReq {
   grants?: ChannelParticipantGrants;
 }
 
-function createBaseParticipantCreateRes(): ParticipantCreateRes {
+export interface GetParticipantAccessTokenReq {
+  identifier: string;
+  channelId: string;
+}
+
+export interface GetParticipantAccessTokenRes {
+  identifier: string;
+  channelId: string;
+  accessToken: string;
+}
+
+function createBaseAddParticipantToChannelRes(): AddParticipantToChannelRes {
   return { participant: undefined, accessToken: "", grants: undefined };
 }
 
-export const ParticipantCreateRes = {
-  encode(message: ParticipantCreateRes, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const AddParticipantToChannelRes = {
+  encode(message: AddParticipantToChannelRes, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.participant !== undefined) {
       Participant.encode(message.participant, writer.uint32(10).fork()).ldelim();
     }
@@ -80,10 +91,10 @@ export const ParticipantCreateRes = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): ParticipantCreateRes {
+  decode(input: _m0.Reader | Uint8Array, length?: number): AddParticipantToChannelRes {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseParticipantCreateRes();
+    const message = createBaseAddParticipantToChannelRes();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -104,7 +115,7 @@ export const ParticipantCreateRes = {
     return message;
   },
 
-  fromJSON(object: any): ParticipantCreateRes {
+  fromJSON(object: any): AddParticipantToChannelRes {
     return {
       participant: isSet(object.participant) ? Participant.fromJSON(object.participant) : undefined,
       accessToken: isSet(object.accessToken) ? String(object.accessToken) : "",
@@ -112,7 +123,7 @@ export const ParticipantCreateRes = {
     };
   },
 
-  toJSON(message: ParticipantCreateRes): unknown {
+  toJSON(message: AddParticipantToChannelRes): unknown {
     const obj: any = {};
     message.participant !== undefined &&
       (obj.participant = message.participant ? Participant.toJSON(message.participant) : undefined);
@@ -122,8 +133,8 @@ export const ParticipantCreateRes = {
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<ParticipantCreateRes>, I>>(object: I): ParticipantCreateRes {
-    const message = createBaseParticipantCreateRes();
+  fromPartial<I extends Exact<DeepPartial<AddParticipantToChannelRes>, I>>(object: I): AddParticipantToChannelRes {
+    const message = createBaseAddParticipantToChannelRes();
     message.participant = (object.participant !== undefined && object.participant !== null)
       ? Participant.fromPartial(object.participant)
       : undefined;
@@ -348,8 +359,134 @@ export const AddParticipantToChannelReq = {
   },
 };
 
+function createBaseGetParticipantAccessTokenReq(): GetParticipantAccessTokenReq {
+  return { identifier: "", channelId: "" };
+}
+
+export const GetParticipantAccessTokenReq = {
+  encode(message: GetParticipantAccessTokenReq, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.identifier !== "") {
+      writer.uint32(10).string(message.identifier);
+    }
+    if (message.channelId !== "") {
+      writer.uint32(18).string(message.channelId);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): GetParticipantAccessTokenReq {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetParticipantAccessTokenReq();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.identifier = reader.string();
+          break;
+        case 2:
+          message.channelId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetParticipantAccessTokenReq {
+    return {
+      identifier: isSet(object.identifier) ? String(object.identifier) : "",
+      channelId: isSet(object.channelId) ? String(object.channelId) : "",
+    };
+  },
+
+  toJSON(message: GetParticipantAccessTokenReq): unknown {
+    const obj: any = {};
+    message.identifier !== undefined && (obj.identifier = message.identifier);
+    message.channelId !== undefined && (obj.channelId = message.channelId);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<GetParticipantAccessTokenReq>, I>>(object: I): GetParticipantAccessTokenReq {
+    const message = createBaseGetParticipantAccessTokenReq();
+    message.identifier = object.identifier ?? "";
+    message.channelId = object.channelId ?? "";
+    return message;
+  },
+};
+
+function createBaseGetParticipantAccessTokenRes(): GetParticipantAccessTokenRes {
+  return { identifier: "", channelId: "", accessToken: "" };
+}
+
+export const GetParticipantAccessTokenRes = {
+  encode(message: GetParticipantAccessTokenRes, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.identifier !== "") {
+      writer.uint32(10).string(message.identifier);
+    }
+    if (message.channelId !== "") {
+      writer.uint32(18).string(message.channelId);
+    }
+    if (message.accessToken !== "") {
+      writer.uint32(26).string(message.accessToken);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): GetParticipantAccessTokenRes {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetParticipantAccessTokenRes();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.identifier = reader.string();
+          break;
+        case 2:
+          message.channelId = reader.string();
+          break;
+        case 3:
+          message.accessToken = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetParticipantAccessTokenRes {
+    return {
+      identifier: isSet(object.identifier) ? String(object.identifier) : "",
+      channelId: isSet(object.channelId) ? String(object.channelId) : "",
+      accessToken: isSet(object.accessToken) ? String(object.accessToken) : "",
+    };
+  },
+
+  toJSON(message: GetParticipantAccessTokenRes): unknown {
+    const obj: any = {};
+    message.identifier !== undefined && (obj.identifier = message.identifier);
+    message.channelId !== undefined && (obj.channelId = message.channelId);
+    message.accessToken !== undefined && (obj.accessToken = message.accessToken);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<GetParticipantAccessTokenRes>, I>>(object: I): GetParticipantAccessTokenRes {
+    const message = createBaseGetParticipantAccessTokenRes();
+    message.identifier = object.identifier ?? "";
+    message.channelId = object.channelId ?? "";
+    message.accessToken = object.accessToken ?? "";
+    return message;
+  },
+};
+
 export interface ParticipantService {
-  AddParticipantToChannel(request: AddParticipantToChannelReq): Promise<Participant>;
+  AddParticipantToChannel(request: AddParticipantToChannelReq): Promise<AddParticipantToChannelRes>;
+  GetParticipantAccessToken(request: GetParticipantAccessTokenReq): Promise<GetParticipantAccessTokenRes>;
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
