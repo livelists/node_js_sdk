@@ -54,12 +54,23 @@ export interface Participant {
   createdAt?: Date;
   status: ParticipantStatus;
   channelId: string;
+  customData?: CustomData | undefined;
 }
 
 export interface AddParticipantToChannelReq {
   identifier: string;
   channelId: string;
   grants?: ChannelParticipantGrants;
+  customData?: CustomData | undefined;
+}
+
+export interface CustomData {
+  data: { [key: string]: string };
+}
+
+export interface CustomData_DataEntry {
+  key: string;
+  value: string;
 }
 
 export interface GetParticipantAccessTokenReq {
@@ -214,7 +225,7 @@ export const ChannelParticipantGrants = {
 };
 
 function createBaseParticipant(): Participant {
-  return { identifier: "", createdAt: undefined, status: 0, channelId: "" };
+  return { identifier: "", createdAt: undefined, status: 0, channelId: "", customData: undefined };
 }
 
 export const Participant = {
@@ -230,6 +241,9 @@ export const Participant = {
     }
     if (message.channelId !== "") {
       writer.uint32(34).string(message.channelId);
+    }
+    if (message.customData !== undefined) {
+      CustomData.encode(message.customData, writer.uint32(42).fork()).ldelim();
     }
     return writer;
   },
@@ -253,6 +267,9 @@ export const Participant = {
         case 4:
           message.channelId = reader.string();
           break;
+        case 5:
+          message.customData = CustomData.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -267,6 +284,7 @@ export const Participant = {
       createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
       status: isSet(object.status) ? participantStatusFromJSON(object.status) : 0,
       channelId: isSet(object.channelId) ? String(object.channelId) : "",
+      customData: isSet(object.customData) ? CustomData.fromJSON(object.customData) : undefined,
     };
   },
 
@@ -276,6 +294,8 @@ export const Participant = {
     message.createdAt !== undefined && (obj.createdAt = message.createdAt.toISOString());
     message.status !== undefined && (obj.status = participantStatusToJSON(message.status));
     message.channelId !== undefined && (obj.channelId = message.channelId);
+    message.customData !== undefined &&
+      (obj.customData = message.customData ? CustomData.toJSON(message.customData) : undefined);
     return obj;
   },
 
@@ -285,12 +305,15 @@ export const Participant = {
     message.createdAt = object.createdAt ?? undefined;
     message.status = object.status ?? 0;
     message.channelId = object.channelId ?? "";
+    message.customData = (object.customData !== undefined && object.customData !== null)
+      ? CustomData.fromPartial(object.customData)
+      : undefined;
     return message;
   },
 };
 
 function createBaseAddParticipantToChannelReq(): AddParticipantToChannelReq {
-  return { identifier: "", channelId: "", grants: undefined };
+  return { identifier: "", channelId: "", grants: undefined, customData: undefined };
 }
 
 export const AddParticipantToChannelReq = {
@@ -302,7 +325,10 @@ export const AddParticipantToChannelReq = {
       writer.uint32(18).string(message.channelId);
     }
     if (message.grants !== undefined) {
-      ChannelParticipantGrants.encode(message.grants, writer.uint32(42).fork()).ldelim();
+      ChannelParticipantGrants.encode(message.grants, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.customData !== undefined) {
+      CustomData.encode(message.customData, writer.uint32(42).fork()).ldelim();
     }
     return writer;
   },
@@ -320,8 +346,11 @@ export const AddParticipantToChannelReq = {
         case 2:
           message.channelId = reader.string();
           break;
-        case 5:
+        case 3:
           message.grants = ChannelParticipantGrants.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.customData = CustomData.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -336,6 +365,7 @@ export const AddParticipantToChannelReq = {
       identifier: isSet(object.identifier) ? String(object.identifier) : "",
       channelId: isSet(object.channelId) ? String(object.channelId) : "",
       grants: isSet(object.grants) ? ChannelParticipantGrants.fromJSON(object.grants) : undefined,
+      customData: isSet(object.customData) ? CustomData.fromJSON(object.customData) : undefined,
     };
   },
 
@@ -345,6 +375,8 @@ export const AddParticipantToChannelReq = {
     message.channelId !== undefined && (obj.channelId = message.channelId);
     message.grants !== undefined &&
       (obj.grants = message.grants ? ChannelParticipantGrants.toJSON(message.grants) : undefined);
+    message.customData !== undefined &&
+      (obj.customData = message.customData ? CustomData.toJSON(message.customData) : undefined);
     return obj;
   },
 
@@ -355,6 +387,131 @@ export const AddParticipantToChannelReq = {
     message.grants = (object.grants !== undefined && object.grants !== null)
       ? ChannelParticipantGrants.fromPartial(object.grants)
       : undefined;
+    message.customData = (object.customData !== undefined && object.customData !== null)
+      ? CustomData.fromPartial(object.customData)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseCustomData(): CustomData {
+  return { data: {} };
+}
+
+export const CustomData = {
+  encode(message: CustomData, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    Object.entries(message.data).forEach(([key, value]) => {
+      CustomData_DataEntry.encode({ key: key as any, value }, writer.uint32(50).fork()).ldelim();
+    });
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): CustomData {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCustomData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 6:
+          const entry6 = CustomData_DataEntry.decode(reader, reader.uint32());
+          if (entry6.value !== undefined) {
+            message.data[entry6.key] = entry6.value;
+          }
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CustomData {
+    return {
+      data: isObject(object.data)
+        ? Object.entries(object.data).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {})
+        : {},
+    };
+  },
+
+  toJSON(message: CustomData): unknown {
+    const obj: any = {};
+    obj.data = {};
+    if (message.data) {
+      Object.entries(message.data).forEach(([k, v]) => {
+        obj.data[k] = v;
+      });
+    }
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<CustomData>, I>>(object: I): CustomData {
+    const message = createBaseCustomData();
+    message.data = Object.entries(object.data ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = String(value);
+      }
+      return acc;
+    }, {});
+    return message;
+  },
+};
+
+function createBaseCustomData_DataEntry(): CustomData_DataEntry {
+  return { key: "", value: "" };
+}
+
+export const CustomData_DataEntry = {
+  encode(message: CustomData_DataEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): CustomData_DataEntry {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCustomData_DataEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.key = reader.string();
+          break;
+        case 2:
+          message.value = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CustomData_DataEntry {
+    return { key: isSet(object.key) ? String(object.key) : "", value: isSet(object.value) ? String(object.value) : "" };
+  },
+
+  toJSON(message: CustomData_DataEntry): unknown {
+    const obj: any = {};
+    message.key !== undefined && (obj.key = message.key);
+    message.value !== undefined && (obj.value = message.value);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<CustomData_DataEntry>, I>>(object: I): CustomData_DataEntry {
+    const message = createBaseCustomData_DataEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -520,6 +677,10 @@ function fromJsonTimestamp(o: any): Date {
   } else {
     return fromTimestamp(Timestamp.fromJSON(o));
   }
+}
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

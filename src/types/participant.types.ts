@@ -11,6 +11,7 @@ export interface IAddParticipantToChannelArgs {
     channelId: string,
     identifier: string,
     grants: ChannelParticipantGrants,
+    customData?: Record<string, string>,
 }
 
 export interface IGetAccessTokenArgs {

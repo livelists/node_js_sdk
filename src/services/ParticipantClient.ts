@@ -38,6 +38,7 @@ export class ParticipantClient extends BaseService {
             channelId,
             identifier,
             grants,
+            customData: customData ? { data: { ...customData } }  : undefined,
         });
 
         const data = await this.rpc.request({
