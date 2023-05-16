@@ -1,6 +1,6 @@
 {
   "name": "livelists-node-js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "node.js server sdk for livelists",
   "main": "./dist/index.js",
   "scripts": {

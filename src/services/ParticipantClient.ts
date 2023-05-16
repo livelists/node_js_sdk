@@ -35,6 +35,7 @@ export class ParticipantClient extends BaseService {
         grants,
         customData,
     }:IAddParticipantToChannelArgs):Promise<AddParticipantToChannelRes> {
+        console.log('send custom Data', customData);
         const req = AddParticipantToChannelReq.toJSON({
             channelId,
             identifier,
