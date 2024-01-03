@@ -1,15 +1,18 @@
-import { IAddParticipantToChannelArgs, IGetAccessTokenArgs } from '../types/participant.types';
-import { IClientArgs } from '../types/common.types';
+import {
+    IAddParticipantToChannelArgs,
+    IGetChannelAccessTokenArgs,
+} from '../types/participant.types';
+import {IClientArgs, ServiceResponse} from '../types/common.types';
 
 import { Rpc, TwirpRpc } from '../common/TwirpRPC';
 import { RPCPackages } from '../common/const/RPCPackages';
 import {
-    Participant,
     AddParticipantToChannelReq,
     AddParticipantToChannelRes,
-    GetParticipantAccessTokenReq,
+    GetParticipantAccessTokenReq, GetParticipantAccessTokenRes,
 } from '../proto/participant';
 import BaseService from './BaseService';
+import {AddParticipantToChannelError, GetAccessTokenError} from "./errors/ParticipantErrors";
 
 const svc = 'ParticipantService';
 
@@ -34,8 +37,7 @@ export class ParticipantClient extends BaseService {
         channelId,
         grants,
         customData,
-    }:IAddParticipantToChannelArgs):Promise<AddParticipantToChannelRes> {
-        console.log('send custom Data', customData);
+    }:IAddParticipantToChannelArgs):Promise<ServiceResponse<AddParticipantToChannelRes>> {
         const req = AddParticipantToChannelReq.toJSON({
             channelId,
             identifier,
@@ -48,15 +50,19 @@ export class ParticipantClient extends BaseService {
             method: 'AddParticipantToChannel',
             data: req,
             headers: this.rootAuthHeader(),
-        });
+        }) as AddParticipantToChannelRes;
 
-        return AddParticipantToChannelRes.fromJSON(data);
+        if (data.errors.length > 0) {
+            throw new AddParticipantToChannelError(data)
+        }
+
+        return data;
     }
 
     public async getAccessToken({
         identifier,
         channelId,
-    }:IGetAccessTokenArgs):Promise<AddParticipantToChannelRes> {
+    }:IGetChannelAccessTokenArgs):Promise<ServiceResponse<GetParticipantAccessTokenRes>> {
         const req = GetParticipantAccessTokenReq.toJSON({
             identifier,
             channelId,
@@ -67,8 +73,11 @@ export class ParticipantClient extends BaseService {
             method: 'GetParticipantAccessToken',
             data: req,
             headers: this.rootAuthHeader(),
-        });
+        }) as GetParticipantAccessTokenRes;
 
-        return AddParticipantToChannelRes.fromJSON(data);
+        if (data.errors.length > 0) {
+            throw new GetAccessTokenError(data);
+        }
+        return data;
     }
 }

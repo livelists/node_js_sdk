@@ -31,7 +31,7 @@ export default class BaseService {
         });
 
         return {
-            Authorization: `Bearer ${at.toJwt()}`,
+            Authorization: at.toJwt(),
         };
     }
 }

@@ -37,7 +37,86 @@ export function participantStatusToJSON(object: ParticipantStatus): string {
   }
 }
 
+export enum AddParticipantToChannelErrors {
+  Unauthorized = 0,
+  IsAlreadyExist = 1,
+  IdentifierNotValid = 2,
+  ChannelNotFound = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function addParticipantToChannelErrorsFromJSON(object: any): AddParticipantToChannelErrors {
+  switch (object) {
+    case 0:
+    case "Unauthorized":
+      return AddParticipantToChannelErrors.Unauthorized;
+    case 1:
+    case "IsAlreadyExist":
+      return AddParticipantToChannelErrors.IsAlreadyExist;
+    case 2:
+    case "IdentifierNotValid":
+      return AddParticipantToChannelErrors.IdentifierNotValid;
+    case 3:
+    case "ChannelNotFound":
+      return AddParticipantToChannelErrors.ChannelNotFound;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return AddParticipantToChannelErrors.UNRECOGNIZED;
+  }
+}
+
+export function addParticipantToChannelErrorsToJSON(object: AddParticipantToChannelErrors): string {
+  switch (object) {
+    case AddParticipantToChannelErrors.Unauthorized:
+      return "Unauthorized";
+    case AddParticipantToChannelErrors.IsAlreadyExist:
+      return "IsAlreadyExist";
+    case AddParticipantToChannelErrors.IdentifierNotValid:
+      return "IdentifierNotValid";
+    case AddParticipantToChannelErrors.ChannelNotFound:
+      return "ChannelNotFound";
+    case AddParticipantToChannelErrors.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum GetParticipantAccessTokenErrors {
+  RootUnauthorized = 0,
+  NotFound = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function getParticipantAccessTokenErrorsFromJSON(object: any): GetParticipantAccessTokenErrors {
+  switch (object) {
+    case 0:
+    case "RootUnauthorized":
+      return GetParticipantAccessTokenErrors.RootUnauthorized;
+    case 1:
+    case "NotFound":
+      return GetParticipantAccessTokenErrors.NotFound;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return GetParticipantAccessTokenErrors.UNRECOGNIZED;
+  }
+}
+
+export function getParticipantAccessTokenErrorsToJSON(object: GetParticipantAccessTokenErrors): string {
+  switch (object) {
+    case GetParticipantAccessTokenErrors.RootUnauthorized:
+      return "RootUnauthorized";
+    case GetParticipantAccessTokenErrors.NotFound:
+      return "NotFound";
+    case GetParticipantAccessTokenErrors.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface AddParticipantToChannelRes {
+  errors: AddParticipantToChannelErrors[];
   participant?: Participant;
   accessToken: string;
   grants?: ChannelParticipantGrants;
@@ -64,6 +143,18 @@ export interface AddParticipantToChannelReq {
   customData?: CustomData | undefined;
 }
 
+export interface GetParticipantAccessTokenReq {
+  identifier: string;
+  channelId: string;
+}
+
+export interface GetParticipantAccessTokenRes {
+  errors: GetParticipantAccessTokenErrors[];
+  identifier: string;
+  channelId: string;
+  accessToken: string;
+}
+
 export interface CustomData {
   data: { [key: string]: string };
 }
@@ -73,31 +164,25 @@ export interface CustomData_DataEntry {
   value: string;
 }
 
-export interface GetParticipantAccessTokenReq {
-  identifier: string;
-  channelId: string;
-}
-
-export interface GetParticipantAccessTokenRes {
-  identifier: string;
-  channelId: string;
-  accessToken: string;
-}
-
 function createBaseAddParticipantToChannelRes(): AddParticipantToChannelRes {
-  return { participant: undefined, accessToken: "", grants: undefined };
+  return { errors: [], participant: undefined, accessToken: "", grants: undefined };
 }
 
 export const AddParticipantToChannelRes = {
   encode(message: AddParticipantToChannelRes, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    writer.uint32(10).fork();
+    for (const v of message.errors) {
+      writer.int32(v);
+    }
+    writer.ldelim();
     if (message.participant !== undefined) {
-      Participant.encode(message.participant, writer.uint32(10).fork()).ldelim();
+      Participant.encode(message.participant, writer.uint32(18).fork()).ldelim();
     }
     if (message.accessToken !== "") {
-      writer.uint32(18).string(message.accessToken);
+      writer.uint32(26).string(message.accessToken);
     }
     if (message.grants !== undefined) {
-      ChannelParticipantGrants.encode(message.grants, writer.uint32(26).fork()).ldelim();
+      ChannelParticipantGrants.encode(message.grants, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -110,12 +195,22 @@ export const AddParticipantToChannelRes = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.participant = Participant.decode(reader, reader.uint32());
+          if ((tag & 7) === 2) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.errors.push(reader.int32() as any);
+            }
+          } else {
+            message.errors.push(reader.int32() as any);
+          }
           break;
         case 2:
-          message.accessToken = reader.string();
+          message.participant = Participant.decode(reader, reader.uint32());
           break;
         case 3:
+          message.accessToken = reader.string();
+          break;
+        case 4:
           message.grants = ChannelParticipantGrants.decode(reader, reader.uint32());
           break;
         default:
@@ -128,6 +223,9 @@ export const AddParticipantToChannelRes = {
 
   fromJSON(object: any): AddParticipantToChannelRes {
     return {
+      errors: Array.isArray(object?.errors)
+        ? object.errors.map((e: any) => addParticipantToChannelErrorsFromJSON(e))
+        : [],
       participant: isSet(object.participant) ? Participant.fromJSON(object.participant) : undefined,
       accessToken: isSet(object.accessToken) ? String(object.accessToken) : "",
       grants: isSet(object.grants) ? ChannelParticipantGrants.fromJSON(object.grants) : undefined,
@@ -136,6 +234,11 @@ export const AddParticipantToChannelRes = {
 
   toJSON(message: AddParticipantToChannelRes): unknown {
     const obj: any = {};
+    if (message.errors) {
+      obj.errors = message.errors.map((e) => addParticipantToChannelErrorsToJSON(e));
+    } else {
+      obj.errors = [];
+    }
     message.participant !== undefined &&
       (obj.participant = message.participant ? Participant.toJSON(message.participant) : undefined);
     message.accessToken !== undefined && (obj.accessToken = message.accessToken);
@@ -146,6 +249,7 @@ export const AddParticipantToChannelRes = {
 
   fromPartial<I extends Exact<DeepPartial<AddParticipantToChannelRes>, I>>(object: I): AddParticipantToChannelRes {
     const message = createBaseAddParticipantToChannelRes();
+    message.errors = object.errors?.map((e) => e) || [];
     message.participant = (object.participant !== undefined && object.participant !== null)
       ? Participant.fromPartial(object.participant)
       : undefined;
@@ -328,7 +432,7 @@ export const AddParticipantToChannelReq = {
       ChannelParticipantGrants.encode(message.grants, writer.uint32(26).fork()).ldelim();
     }
     if (message.customData !== undefined) {
-      CustomData.encode(message.customData, writer.uint32(42).fork()).ldelim();
+      CustomData.encode(message.customData, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -349,7 +453,7 @@ export const AddParticipantToChannelReq = {
         case 3:
           message.grants = ChannelParticipantGrants.decode(reader, reader.uint32());
           break;
-        case 5:
+        case 4:
           message.customData = CustomData.decode(reader, reader.uint32());
           break;
         default:
@@ -390,6 +494,155 @@ export const AddParticipantToChannelReq = {
     message.customData = (object.customData !== undefined && object.customData !== null)
       ? CustomData.fromPartial(object.customData)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseGetParticipantAccessTokenReq(): GetParticipantAccessTokenReq {
+  return { identifier: "", channelId: "" };
+}
+
+export const GetParticipantAccessTokenReq = {
+  encode(message: GetParticipantAccessTokenReq, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.identifier !== "") {
+      writer.uint32(10).string(message.identifier);
+    }
+    if (message.channelId !== "") {
+      writer.uint32(18).string(message.channelId);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): GetParticipantAccessTokenReq {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetParticipantAccessTokenReq();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.identifier = reader.string();
+          break;
+        case 2:
+          message.channelId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetParticipantAccessTokenReq {
+    return {
+      identifier: isSet(object.identifier) ? String(object.identifier) : "",
+      channelId: isSet(object.channelId) ? String(object.channelId) : "",
+    };
+  },
+
+  toJSON(message: GetParticipantAccessTokenReq): unknown {
+    const obj: any = {};
+    message.identifier !== undefined && (obj.identifier = message.identifier);
+    message.channelId !== undefined && (obj.channelId = message.channelId);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<GetParticipantAccessTokenReq>, I>>(object: I): GetParticipantAccessTokenReq {
+    const message = createBaseGetParticipantAccessTokenReq();
+    message.identifier = object.identifier ?? "";
+    message.channelId = object.channelId ?? "";
+    return message;
+  },
+};
+
+function createBaseGetParticipantAccessTokenRes(): GetParticipantAccessTokenRes {
+  return { errors: [], identifier: "", channelId: "", accessToken: "" };
+}
+
+export const GetParticipantAccessTokenRes = {
+  encode(message: GetParticipantAccessTokenRes, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    writer.uint32(10).fork();
+    for (const v of message.errors) {
+      writer.int32(v);
+    }
+    writer.ldelim();
+    if (message.identifier !== "") {
+      writer.uint32(18).string(message.identifier);
+    }
+    if (message.channelId !== "") {
+      writer.uint32(26).string(message.channelId);
+    }
+    if (message.accessToken !== "") {
+      writer.uint32(34).string(message.accessToken);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): GetParticipantAccessTokenRes {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetParticipantAccessTokenRes();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if ((tag & 7) === 2) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.errors.push(reader.int32() as any);
+            }
+          } else {
+            message.errors.push(reader.int32() as any);
+          }
+          break;
+        case 2:
+          message.identifier = reader.string();
+          break;
+        case 3:
+          message.channelId = reader.string();
+          break;
+        case 4:
+          message.accessToken = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetParticipantAccessTokenRes {
+    return {
+      errors: Array.isArray(object?.errors)
+        ? object.errors.map((e: any) => getParticipantAccessTokenErrorsFromJSON(e))
+        : [],
+      identifier: isSet(object.identifier) ? String(object.identifier) : "",
+      channelId: isSet(object.channelId) ? String(object.channelId) : "",
+      accessToken: isSet(object.accessToken) ? String(object.accessToken) : "",
+    };
+  },
+
+  toJSON(message: GetParticipantAccessTokenRes): unknown {
+    const obj: any = {};
+    if (message.errors) {
+      obj.errors = message.errors.map((e) => getParticipantAccessTokenErrorsToJSON(e));
+    } else {
+      obj.errors = [];
+    }
+    message.identifier !== undefined && (obj.identifier = message.identifier);
+    message.channelId !== undefined && (obj.channelId = message.channelId);
+    message.accessToken !== undefined && (obj.accessToken = message.accessToken);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<GetParticipantAccessTokenRes>, I>>(object: I): GetParticipantAccessTokenRes {
+    const message = createBaseGetParticipantAccessTokenRes();
+    message.errors = object.errors?.map((e) => e) || [];
+    message.identifier = object.identifier ?? "";
+    message.channelId = object.channelId ?? "";
+    message.accessToken = object.accessToken ?? "";
     return message;
   },
 };
@@ -512,131 +765,6 @@ export const CustomData_DataEntry = {
     const message = createBaseCustomData_DataEntry();
     message.key = object.key ?? "";
     message.value = object.value ?? "";
-    return message;
-  },
-};
-
-function createBaseGetParticipantAccessTokenReq(): GetParticipantAccessTokenReq {
-  return { identifier: "", channelId: "" };
-}
-
-export const GetParticipantAccessTokenReq = {
-  encode(message: GetParticipantAccessTokenReq, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.identifier !== "") {
-      writer.uint32(10).string(message.identifier);
-    }
-    if (message.channelId !== "") {
-      writer.uint32(18).string(message.channelId);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): GetParticipantAccessTokenReq {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetParticipantAccessTokenReq();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.identifier = reader.string();
-          break;
-        case 2:
-          message.channelId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GetParticipantAccessTokenReq {
-    return {
-      identifier: isSet(object.identifier) ? String(object.identifier) : "",
-      channelId: isSet(object.channelId) ? String(object.channelId) : "",
-    };
-  },
-
-  toJSON(message: GetParticipantAccessTokenReq): unknown {
-    const obj: any = {};
-    message.identifier !== undefined && (obj.identifier = message.identifier);
-    message.channelId !== undefined && (obj.channelId = message.channelId);
-    return obj;
-  },
-
-  fromPartial<I extends Exact<DeepPartial<GetParticipantAccessTokenReq>, I>>(object: I): GetParticipantAccessTokenReq {
-    const message = createBaseGetParticipantAccessTokenReq();
-    message.identifier = object.identifier ?? "";
-    message.channelId = object.channelId ?? "";
-    return message;
-  },
-};
-
-function createBaseGetParticipantAccessTokenRes(): GetParticipantAccessTokenRes {
-  return { identifier: "", channelId: "", accessToken: "" };
-}
-
-export const GetParticipantAccessTokenRes = {
-  encode(message: GetParticipantAccessTokenRes, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.identifier !== "") {
-      writer.uint32(10).string(message.identifier);
-    }
-    if (message.channelId !== "") {
-      writer.uint32(18).string(message.channelId);
-    }
-    if (message.accessToken !== "") {
-      writer.uint32(26).string(message.accessToken);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): GetParticipantAccessTokenRes {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetParticipantAccessTokenRes();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.identifier = reader.string();
-          break;
-        case 2:
-          message.channelId = reader.string();
-          break;
-        case 3:
-          message.accessToken = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GetParticipantAccessTokenRes {
-    return {
-      identifier: isSet(object.identifier) ? String(object.identifier) : "",
-      channelId: isSet(object.channelId) ? String(object.channelId) : "",
-      accessToken: isSet(object.accessToken) ? String(object.accessToken) : "",
-    };
-  },
-
-  toJSON(message: GetParticipantAccessTokenRes): unknown {
-    const obj: any = {};
-    message.identifier !== undefined && (obj.identifier = message.identifier);
-    message.channelId !== undefined && (obj.channelId = message.channelId);
-    message.accessToken !== undefined && (obj.accessToken = message.accessToken);
-    return obj;
-  },
-
-  fromPartial<I extends Exact<DeepPartial<GetParticipantAccessTokenRes>, I>>(object: I): GetParticipantAccessTokenRes {
-    const message = createBaseGetParticipantAccessTokenRes();
-    message.identifier = object.identifier ?? "";
-    message.channelId = object.channelId ?? "";
-    message.accessToken = object.accessToken ?? "";
     return message;
   },
 };

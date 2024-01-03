@@ -9,9 +9,13 @@ import {
     IReqArgs,
 } from '../types/twirp.types';
 import { RPCPackages } from './const/RPCPackages';
+import {CreateChannelResponse} from "../proto/channel";
+import {AddParticipantToChannelRes, GetParticipantAccessTokenRes} from "../proto/participant";
+
+type ServicesResponses = CreateChannelResponse | AddParticipantToChannelRes | GetParticipantAccessTokenRes
 
 export interface Rpc {
-    request(data:IReqArgs): Promise<string>;
+    request(data:IReqArgs): Promise<ServicesResponses>;
 }
 
 /**
@@ -37,7 +41,7 @@ export class TwirpRpc {
 
     request({
         service, method, data, headers,
-    }:IReqArgs): Promise<string> {
+    }:IReqArgs): Promise<ServicesResponses> {
         return new Promise<any>((resolve, reject) => {
             const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
             this.instance

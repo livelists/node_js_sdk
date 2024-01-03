@@ -3,8 +3,9 @@ import { IClientArgs } from '../types/common.types';
 
 import { Rpc, TwirpRpc } from '../common/TwirpRPC';
 import { RPCPackages } from '../common/const/RPCPackages';
-import { Channel, CreateChannelReq } from '../proto/channel';
+import { Channel, CreateChannelReq, CreateChannelResponse } from '../proto/channel';
 import BaseService from './BaseService';
+import { CreateChannelError } from './errors/ChannelErrors';
 
 const svc = 'ChannelService';
 
@@ -27,19 +28,25 @@ export class ChannelClient extends BaseService {
     public async createChannel({
         identifier,
         maxParticipants,
+        customData,
     }:ICreateChannelArgs):Promise<Channel> {
         const req = CreateChannelReq.toJSON({
             maxParticipants,
             identifier,
+            customData: customData ? { data: customData }  : undefined,
         });
 
-        const data = await this.rpc.request({
+        const response = await this.rpc.request({
             service: svc,
             method: 'CreateChannel',
             data: req,
             headers: this.rootAuthHeader(),
-        });
+        }) as CreateChannelResponse;
 
-        return Channel.fromJSON(data);
+        if (response.errors.length > 0 || !response.channel) {
+            throw new CreateChannelError(response);
+        }
+
+        return response.channel;
     }
 }

@@ -3,3 +3,6 @@ export interface IClientArgs {
     apiKey: string,
     secretKey: string,
 }
+
+
+export type ServiceResponse<T> = Omit<T, 'errors'>
